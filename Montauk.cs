@@ -1,7 +1,7 @@
 ﻿//
 // Montauk is a super tiny minimal web framework for .NET
 //
-// Updated On: 4 Oct 2011
+// Updated On: 5 Oct 2011
 // 
 // Frank Hale <frankhale@gmail.com>
 //
@@ -58,6 +58,7 @@ namespace Montauk
     public static string CompiledViewsSessionName = "__CompiledViews";
     public static string AntiForgeryTokenSessionName = "__AntiForgeryTokens";
     public static string AntiForgeryTokenName = "AntiForgeryToken";
+    public static string AntiForgeryTokenMissing = "All posted forms must have a valid antiforgery token.";
     public static Regex PathStaticFileRE = new Regex(@"\.(js|png|jpg|ico|css)$");
   }
   #endregion
@@ -151,10 +152,17 @@ namespace Montauk
 
               if (!String.IsNullOrEmpty(postRouteKey))
               {
-                mApp.CurrentActionRoute = postRouteKey.ReplaceFirstInstance("/", "");
-                string view = mApp.Post[postRouteKey](context.Request.Form);
-                context.Response.Write(view);
-                return;
+                if (AntiForgeryToken.VerifyToken(context))
+                {
+                  AntiForgeryToken.RemoveToken(context);
+
+                  mApp.CurrentActionRoute = postRouteKey.ReplaceFirstInstance("/", "");
+                  string view = mApp.Post[postRouteKey](context.Request.Form);
+                  context.Response.Write(view);
+                  return;
+                }
+                else
+                  throw new Exception(MontaukConfig.AntiForgeryTokenMissing);
               }
               break;
           };
@@ -238,7 +246,7 @@ namespace Montauk
 
     private static string CreateUniqueToken(List<string> tokens)
     {
-      string token = String.Format("{0}{1}", Guid.NewGuid(), Guid.NewGuid()).Replace("-", "");
+      string token = (Guid.NewGuid().ToString() + Guid.NewGuid().ToString()).Replace("-", "");
 
       if (tokens.Contains(token))
         CreateUniqueToken(tokens);
@@ -257,7 +265,22 @@ namespace Montauk
       return String.Format("<input type=\"hidden\" name=\"AntiForgeryToken\" value=\"{0}\" />", token);
     }
 
-    //TODO: We need a method to remove a token (need to remove a token after posting)
+    public static void RemoveToken(HttpContext context)
+    {
+      if (context.Request.Form.AllKeys.Contains(MontaukConfig.AntiForgeryTokenName))
+      {
+        string token = context.Request.Form[MontaukConfig.AntiForgeryTokenName];
+
+        List<string> tokens = GetTokens(context);
+
+        if (tokens.Contains(token))
+        {
+          tokens.Remove(token);
+
+          context.Session[MontaukConfig.AntiForgeryTokenSessionName] = tokens;
+        }
+      }
+    }
 
     public static bool VerifyToken(HttpContext context)
     {

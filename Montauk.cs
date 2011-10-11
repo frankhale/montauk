@@ -1,7 +1,7 @@
 ﻿//
 // Montauk is a super tiny minimal web framework for .NET
 //
-// Updated On: 5 Oct 2011
+// Updated On: 6 Oct 2011
 // 
 // Frank Hale <frankhale@gmail.com>
 //
@@ -508,13 +508,24 @@ namespace Montauk
 
     public void LoadView(string viewKeyName, Dictionary<string, string> tags)
     {
-      viewKeyName = viewKeyName.Replace("/", @"\");
-
-      if (viewKeyName == "Index")
-        viewKeyName = @"Index\Index";
+      viewKeyName = FixateViewKeyName(viewKeyName);
+      viewKeyName = FixateIndexKey(viewKeyName);
 
       if (templates.ContainsKey(viewKeyName))
         Compile(viewKeyName, tags);
+    }
+
+    private string FixateIndexKey(string key)
+    {
+      if (key == "Index")
+        return String.Format(@"Index{0}Index", Path.DirectorySeparatorChar);
+
+      return key;
+    }
+
+    private string FixateViewKeyName(string key)
+    {
+      return key.Replace("/", Path.DirectorySeparatorChar.ToString());
     }
 
     public bool ContainsView(string view)
@@ -526,10 +537,8 @@ namespace Montauk
     {
       get
       {
-        if (key == "Index")
-          key = @"Index\Index";
-
-        key = key.Replace("/", @"\");
+        key = FixateIndexKey(key);
+        key = FixateViewKeyName(key);
 
         if (!views.ContainsKey(key))
           throw new Exception(String.Format("Cannot find view named: {0}", key));

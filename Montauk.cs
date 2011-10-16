@@ -413,17 +413,21 @@ namespace Montauk
         value.Length = 0;
         value.Insert(0, match.Groups["value"].Value);
 
-        pageContent = new StringBuilder(templates[MontaukConfig.SharedFolderName + @"\" + value].ToString());
+        string template = templates[MontaukConfig.SharedFolderName + "/" + value].ToString();
+
+        //FIXME: The switch statement below needs more work!
 
         switch (directive.ToString())
         {
           case "Master":
-            rawView.Replace(match.Groups[0].Value, "");
+            pageContent = new StringBuilder(template);
+            rawView.Replace(match.Groups[0].Value, String.Empty);
             pageContent.Replace(viewDirective, rawView.ToString());
             break;
 
           case "Partial":
-            rawView.Replace(String.Format(partialDirective, value), pageContent.ToString());
+            StringBuilder partialContent = new StringBuilder(template);
+            rawView.Replace(String.Format(partialDirective, value), partialContent.ToString());
             break;
         }
       }

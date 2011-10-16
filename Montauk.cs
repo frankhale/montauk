@@ -413,7 +413,7 @@ namespace Montauk
         value.Length = 0;
         value.Insert(0, match.Groups["value"].Value);
 
-        string template = templates[MontaukConfig.SharedFolderName + "/" + value].ToString();
+        string template = templates[MontaukConfig.SharedFolderName + Path.DirectorySeparatorChar + value].ToString();
 
         //FIXME: The switch statement below needs more work!
 

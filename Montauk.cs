@@ -1,7 +1,7 @@
 ﻿//
-// Montauk is a super tiny minimal web framework for .NET
+// Montauk is a tiny minimal web framework for .NET
 //
-// Updated On: 6 Oct 2011
+// Updated On: 3 November 2011
 // 
 // Frank Hale <frankhale@gmail.com>
 //
@@ -40,8 +40,7 @@ using System.Web.SessionState;
 [assembly: AssemblyProduct("Montauk")]
 [assembly: AssemblyCopyright("Copyright © 2011")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.2")]
 #endregion
 
 namespace Montauk
@@ -54,12 +53,13 @@ namespace Montauk
     public static string DefaultRoute = "/Index";
     public static string ViewRoot = "/Views";
     public static string SharedFolderName = "Shared";
+    public static string PublicResourcesFolderName = "Resources"; 
     public static string TemplatesSessionName = "__Templates";
     public static string CompiledViewsSessionName = "__CompiledViews";
     public static string AntiForgeryTokenSessionName = "__AntiForgeryTokens";
     public static string AntiForgeryTokenName = "AntiForgeryToken";
     public static string AntiForgeryTokenMissing = "All posted forms must have a valid antiforgery token.";
-    public static Regex PathStaticFileRE = new Regex(@"\.(js|png|jpg|ico|css)$");
+    public static Regex PathStaticFileRE = new Regex(@"\.(js|png|jpg|ico|css|txt)$");
   }
   #endregion
 
@@ -85,14 +85,14 @@ namespace Montauk
     {
       return GetTypeList(typeof(MontaukApplication)).FirstOrDefault();
     }
-        
+
     public MontaukEngine(HttpContext ctx)
     {
       context = ctx;
 
-      if (ctx.Request.Path.Contains("~"))
+      if (ctx.Request.Path.StartsWith("/" + MontaukConfig.PublicResourcesFolderName))
       {
-        string path = context.Server.MapPath(ctx.Request.Path.Split('~')[1]);
+        string path = context.Server.MapPath(ctx.Request.Path);
 
         if (MontaukConfig.PathStaticFileRE.IsMatch(path))
         {
@@ -108,6 +108,8 @@ namespace Montauk
               contentType = "image/jpg";
             else if (path.EndsWith(".ico"))
               contentType = "image/x-icon";
+            else if (path.EndsWith(".txt"))
+              contentType = "text/plain";
 
             context.Response.ContentType = contentType;
             context.Response.WriteFile(path);
@@ -117,6 +119,7 @@ namespace Montauk
       }
       else
       {
+        #region ACTION HANDLER
         if ((ctx.Request.Path == "/") || (ctx.Request.Path.ToLower() == "/default.aspx"))
           ctx.Response.Redirect(MontaukConfig.DefaultRoute);
 
@@ -167,6 +170,7 @@ namespace Montauk
               break;
           };
         }
+        #endregion
       }
 
       context.Response.ContentType = "text/html";
@@ -202,7 +206,7 @@ namespace Montauk
       Request = ctx.Request;
       Response = ctx.Response;
 
-      viewEngine = (IViewEngine) Activator.CreateInstance(MontaukConfig.ViewEngineType, new object[] { Context });
+      viewEngine = (IViewEngine)Activator.CreateInstance(MontaukConfig.ViewEngineType, new object[] { Context });
     }
 
     public void WriteHTML(string html)
@@ -349,8 +353,14 @@ namespace Montauk
 
       foreach (FileInfo fi in GetFiles(context.Server.MapPath(path)))
       {
-        string template = new StreamReader(fi.OpenRead()).ReadToEnd();
-        string viewKeyName = fi.FullName.Replace(root, "").Replace(".html", "").ReplaceFirstInstance(@"\","");
+        string template;
+        
+        using (StreamReader sr = new StreamReader(fi.OpenRead()))
+        {
+          template = sr.ReadToEnd();
+        }
+        
+        string viewKeyName = fi.FullName.Replace(root, "").Replace(".html", "").ReplaceFirstInstance(@"\", "");
 
         templates.Add(viewKeyName, new StringBuilder(template));
       }

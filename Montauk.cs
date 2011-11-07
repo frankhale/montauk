@@ -1,9 +1,10 @@
 ﻿//
 // Montauk is a tiny minimal web framework for .NET
 //
-// Updated On: 6 November 2011
+// Updated On: 7 November 2011
 // 
-// Frank Hale <frankhale@gmail.com>
+// Frank Hale - frankhale@gmail.com
+// 			    http://about.me/frank.hale
 //
 // GPL version 3 <http://www.gnu.org/licenses/gpl-3.0.html>
 //
@@ -35,7 +36,7 @@ using System.Web.SessionState;
 
 #region ASSEMBLY INFORMATION
 [assembly: AssemblyTitle("Montauk")]
-[assembly: AssemblyDescription("A super tiny minimal web framework for .NET")]
+[assembly: AssemblyDescription("A tiny minimal web framework for .NET")]
 [assembly: AssemblyCompany("Frank Hale")]
 [assembly: AssemblyProduct("Montauk")]
 [assembly: AssemblyCopyright("Copyright © 2011")]

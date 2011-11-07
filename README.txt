@@ -2,11 +2,12 @@ Montauk is a super tiny minimal web framework for .NET
 
 Description: This aims to be much more minimal than Autumn. This is just mean to be fast and only provide a very thin framework in which to create an web application.
 
-Updated On: 3 November 2011
+Updated On: 7 November 2011
  
-Frank Hale <frankhale@gmail.com>
+Frank Hale - frankhale@gmail.com
+             http://about.me/frank.hale
 
-Usage: Montauk is just a couple weeks in the making, I wanted to get this out as quickly as possible. Documentation coming shortly. 
+Usage: Sample app coming soon. 
 
 // GPL version 3 <http://www.gnu.org/licenses/gpl-3.0.html>
 //

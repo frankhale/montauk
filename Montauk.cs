@@ -1,7 +1,7 @@
 ﻿//
 // Montauk is a tiny minimal web framework for .NET
 //
-// Updated On: 3 November 2011
+// Updated On: 6 November 2011
 // 
 // Frank Hale <frankhale@gmail.com>
 //
@@ -322,7 +322,6 @@ namespace Montauk
     private static string viewDirective = "%%View%%";
     private static string headDirective = "%%Head%%";
     private static string partialDirective = "%%Partial={0}%%";
-    private static string sharedFolderName = MontaukConfig.SharedFolderName;
     private Dictionary<string, StringBuilder> templates;
 
     public SimpleViewEngine(HttpContext ctx)
